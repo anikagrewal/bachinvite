@@ -1,3 +1,4 @@
+import { color } from "framer-motion";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -13,10 +14,11 @@ const config: Config = {
         'Lora': ['lora', 'sans-serif'],
       },
      colors: {
-  
+        'light' : '#940505',
       background: {
         DEFAULT: '#ffffff',
         dark: '#000000',
+        'light-cream' : '#940505',
       },
       text: {
         DEFAULT: '#000000',
@@ -44,6 +46,7 @@ const config: Config = {
       headerH: "50rem",
       phH: '32rem',
       whl: '20rem',
+      logo:'55rem',
 
      },
      width: {
@@ -54,7 +57,8 @@ const config: Config = {
       vidW: '45rem',
       pageW: '55rem',
       phW: '110rem',
-      logoW: '10rem'
+      logoW: '10rem',
+       logo:'55rem',
      },
      padding: {
       headP: '80rem'

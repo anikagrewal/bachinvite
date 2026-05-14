@@ -8,7 +8,7 @@ export default function Home() {
   const [view, setView] = useState<'intro' | 'invite'>('intro');
 
   return (
-    <main className={`bg-beige`}>
+    <main className={`min-h-screen p-8 flex flex-col items-center text-varsity-cream bg-white mt-15`}>
       <AnimatePresence mode="wait">
         {view === 'intro' ? (
           <motion.div
@@ -19,7 +19,7 @@ export default function Home() {
             onClick={() => setView('invite')}
             className="cursor-pointer flex flex-col items-center"
           >
-            <img src="/bach_logo.svg" alt="Logo" className="w-48 h-48 animate-pulse" />
+            <img src="/bach_logo.svg" alt="Logo" className="h-logo animate-pulse" />
             <p className="mt-8 font-serif text-varsity-cream/60 tracking-widest uppercase text-xs">
               Tap to Enter Center Ice
             </p>
