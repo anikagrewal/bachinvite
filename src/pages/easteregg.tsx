@@ -2,49 +2,53 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-// 1. IMPORT SUPABASE CLIENT
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/utils/supabase/client'; // Import at top again
 
 export default function ScoutingReport() {
-  // 2. ADD 'name' TO YOUR STATE
   const [answers, setAnswers] = useState({ name: '', gd: '', t: '', e: '', c: '' });
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [error, setError] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
- 
-
-  // 3. CHANGE TO ASYNC FUNCTION
   const handleVerify = async () => {
-     const supabase = createClient();
+    // 1. Check if everything is filled out
     const isGDCorrect = answers.gd.toLowerCase().includes('day');
     const isTCorrect = answers.t.toLowerCase().includes('team');
     const isCCorrect = answers.c.toLowerCase().includes('champ') || answers.c.toLowerCase().includes('winner');
     const isEFilled = answers.e.length > 0;
     const isNameFilled = answers.name.length > 0;
 
+    // DEBUG: Uncomment the line below to see why it's failing in your browser console
+    // console.log({ isGDCorrect, isTCorrect, isCCorrect, isEFilled, isNameFilled });
+
     if (isGDCorrect && isTCorrect && isCCorrect && isEFilled && isNameFilled) {
       setIsSending(true);
       
-      // 4. PUSH DATA TO SUPABASE
-      const { error: dbError } = await supabase
-        .from('scouting_reports')
-        .insert([
-          { 
-            scout_name: answers.name, 
-            event_estimate: parseInt(answers.e) 
-          }
-        ]);
+      try {
+        const supabase = createClient();
+        const { error: dbError } = await supabase
+          .from('scouting_reports')
+          .insert([
+            { 
+              scout_name: answers.name, 
+              event_estimate: parseInt(answers.e) || 0
+            }
+          ]);
 
-      if (dbError) {
-        console.error("DB Error:", dbError.message);
-        // Even if DB fails, we'll let them in so the party isn't ruined
+        if (dbError) {
+          console.error("Database Error:", dbError.message);
+        }
+        
+        // We unlock the page even if the DB fails so your guests aren't stuck
         setIsUnlocked(true);
-      } else {
+      } catch (err) {
+        console.error("Critical Error:", err);
         setIsUnlocked(true);
+      } finally {
+        setIsSending(false);
       }
-      setIsSending(false);
     } else {
+      // If validation fails, trigger the shake effect
       setError(true);
       setTimeout(() => setError(false), 500);
     }
