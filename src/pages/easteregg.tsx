@@ -2,23 +2,50 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+// 1. IMPORT SUPABASE CLIENT
+import { createClient } from '@/utils/supabase/client';
 
 export default function ScoutingReport() {
-  const [answers, setAnswers] = useState({ gd: '', t: '', e: '', c: '' });
+  // 2. ADD 'name' TO YOUR STATE
+  const [answers, setAnswers] = useState({ name: '', gd: '', t: '', e: '', c: '' });
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [error, setError] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
-  const handleVerify = () => {
+  const supabase = createClient();
+
+  // 3. CHANGE TO ASYNC FUNCTION
+  const handleVerify = async () => {
     const isGDCorrect = answers.gd.toLowerCase().includes('day');
     const isTCorrect = answers.t.toLowerCase().includes('team');
     const isCCorrect = answers.c.toLowerCase().includes('champ') || answers.c.toLowerCase().includes('winner');
-    const isEFilled = answers.e.length > 0; // Just checks if they made a guess
+    const isEFilled = answers.e.length > 0;
+    const isNameFilled = answers.name.length > 0;
 
-    if (isGDCorrect && isTCorrect && isCCorrect && isEFilled) {
-      setIsUnlocked(true);
+    if (isGDCorrect && isTCorrect && isCCorrect && isEFilled && isNameFilled) {
+      setIsSending(true);
+      
+      // 4. PUSH DATA TO SUPABASE
+      const { error: dbError } = await supabase
+        .from('scouting_reports')
+        .insert([
+          { 
+            scout_name: answers.name, 
+            event_estimate: parseInt(answers.e) 
+          }
+        ]);
+
+      if (dbError) {
+        console.error("DB Error:", dbError.message);
+        // Even if DB fails, we'll let them in so the party isn't ruined
+        setIsUnlocked(true);
+      } else {
+        setIsUnlocked(true);
+      }
+      setIsSending(false);
     } else {
       setError(true);
-      setTimeout(() => setError(false), 500); // Shakes the UI
+      setTimeout(() => setError(false), 500);
     }
   };
 
@@ -35,6 +62,16 @@ export default function ScoutingReport() {
             animate={error ? { x: [-10, 10, -10, 10, 0] } : {}}
             className="w-full max-w-sm space-y-6"
           >
+            {/* NEW: NAME SLOT */}
+            <div className="flex items-center space-x-4 bg-beige p-3 rounded-lg border border-hockey-blue/20">
+              <span className="font-mono text-hockey-blue font-bold w-16">SCOUT:</span>
+              <input 
+                placeholder="Enter your name"
+                className="bg-transparent border-b border-zinc-700 flex-1 outline-none text-sm py-1 focus:border-varsity-cream transition-colors"
+                onChange={(e) => setAnswers({...answers, name: e.target.value})}
+              />
+            </div>
+
             {/* GD: 03 Slot */}
             <div className="flex items-center space-x-4 bg-beige p-3 rounded-lg border border-hockey-blue/20">
               <span className="font-mono text-hockey-blue font-bold w-16">GD: 03</span>
@@ -78,9 +115,10 @@ export default function ScoutingReport() {
 
             <button 
               onClick={handleVerify}
+              disabled={isSending}
               className="w-full bg-hockey-blue text-black font-bold py-4 rounded-lg active:scale-95 transition-all mt-4 shadow-lg shadow-hockey-blue/20"
             >
-              INITIALIZE DECODING
+              {isSending ? "LOGGING INTEL..." : "INITIALIZE DECODING"}
             </button>
           </motion.div>
         ) : (
@@ -89,19 +127,15 @@ export default function ScoutingReport() {
             className="text-center space-y-8"
           >
             <div className="bg-varsity-cream text-zinc-950 p-8 rounded-2xl shadow-2xl">
-              <h2 className="font-serif text-2xl font-bold mb-4">ACCESS GRANTED</h2>
+              <h2 className="font-serif text-2xl font-bold mb-4 uppercase">Access Granted</h2>
               <div className="space-y-4 text-xs uppercase tracking-widest text-left">
-                <p><strong>MISSION:</strong> Consider this the official Training Camp for the Big Game. 
-                     We are trading the ice for the field for a 72 hour Sports Day residency. 
-                        We've found our "Line One" for life, now it's time to see who takes the Bach Cup! </p>
-                <p><strong>ROSTER:</strong> You have been scouted for your elite energy and locker room presence. 
-                4 Exclusive Teams will be drafted at the Opening Faceoff.
-                 Your colours and captain will be revealed upon arrival.</p>
-                <p><strong>THE SERIES:</strong>From the first whistle to the King's Court, every point counts toward the championship.</p>
-                <p className="pt-4 border-t border-zinc-300"><strong>ESTIMATE LOGGED:</strong> {answers.e} events predicted.</p>
+                <p><strong>Mission:</strong> Consider this the official Training Camp for the Big Game. We are trading the ice for the field for a 72 hour Sports Day residency.</p>
+                <p><strong>Roster:</strong> You have been scouted for your elite energy. 4 Exclusive Teams will be drafted at the Opening Faceoff.</p>
+                <p><strong>The Series:</strong> From the first whistle to the King's Court, every point counts toward the championship.</p>
+                <p className="pt-4 border-t border-zinc-300"><strong>Estimate Logged:</strong> {answers.e} events predicted by Scout {answers.name}.</p>
               </div>
             </div>
-            <p className="text-xs text-zinc-500 italic">"Before we walk down the aisle, we're tearing up the field. We'll see you the puck drop"</p>
+            <p className="text-xs text-zinc-500 italic">"Before we walk down the aisle, we're tearing up the field. See you at puck drop."</p>
           </motion.div>
         )}
       </AnimatePresence>
