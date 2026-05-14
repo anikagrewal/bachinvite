@@ -12,10 +12,11 @@ export default function ScoutingReport() {
   const [error, setError] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  const supabase = createClient();
+ 
 
   // 3. CHANGE TO ASYNC FUNCTION
   const handleVerify = async () => {
+     const supabase = createClient();
     const isGDCorrect = answers.gd.toLowerCase().includes('day');
     const isTCorrect = answers.t.toLowerCase().includes('team');
     const isCCorrect = answers.c.toLowerCase().includes('champ') || answers.c.toLowerCase().includes('winner');
