@@ -96,9 +96,8 @@ export default function ScoutingReport() {
                         We've found our "Line One" for life, now it's time to see who takes the Bach Cup! </p>
                 <p><strong>ROSTER:</strong> You have been scouted for your elite energy and locker room presence. 
                 4 Exclusive Teams will be drafted at the Opening Faceoff.
-                 Your colours and captain will be revelead upon arrival.</p>
-                <p><strong>THE SERIES:</strong>From the first whistle to the King's Court, every point counts toward the championship.
-                This </p>
+                 Your colours and captain will be revealed upon arrival.</p>
+                <p><strong>THE SERIES:</strong>From the first whistle to the King's Court, every point counts toward the championship.</p>
                 <p className="pt-4 border-t border-zinc-300"><strong>ESTIMATE LOGGED:</strong> {answers.e} events predicted.</p>
               </div>
             </div>
