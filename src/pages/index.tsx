@@ -8,7 +8,7 @@ export default function Home() {
   const [view, setView] = useState<'intro' | 'invite'>('intro');
 
   return (
-    <main className={`min-h-screen p-8 flex flex-col items-center text-varsity-cream bg-white mt-15`}>
+    <main className={`min-h-screen p-8 flex flex-col items-center text-varsity-cream bg-white mt-7`}>
       <AnimatePresence mode="wait">
         {view === 'intro' ? (
           <motion.div
